@@ -118,7 +118,7 @@ export function MainLayout({
             ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
             md:translate-x-0 transition-all duration-300 ease-in-out
             fixed md:relative z-50 md:z-auto
-            ${isSidebarCollapsed ? "md:w-16" : "w-80 md:w-96"}
+           ${isSidebarCollapsed ? "md:w-12" : "w-60 md:w-72"}
             h-full bg-background border-r flex-shrink-0
           `}
           >

@@ -100,6 +100,12 @@ interface EthiopiaMapProps {
   landParameter?: string
   cropParameter?: string
   pestParameter?: string
+
+  ////////////////step////////
+  ethiopiaData?: any[]
+  ethiopiaLayerEnabled?: boolean
+  ethiopiaParameter?: string
+  ///////////////////////////
 }
 
 export function EthiopiaMap({
@@ -133,6 +139,13 @@ export function EthiopiaMap({
   landParameter = "total_agri_land",
   cropParameter = "teff_production_mt",
   pestParameter = "pest_incidence",
+
+
+  //////////step///////////
+  ethiopiaData = [],
+  ethiopiaLayerEnabled = false,
+  ethiopiaParameter = "population",
+  //////////////////////////////////
 }: EthiopiaMapProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -325,7 +338,14 @@ export function EthiopiaMap({
     if (pestDataLayerEnabled && pestData.length > 0) {
       return { data: pestData, parameter: pestParameter, type: "pest" }
     }
-    return null
+    
+    //////////////////////step///////////////////////////
+     if (ethiopiaLayerEnabled && ethiopiaData.length > 0) {
+    return { data: ethiopiaData, parameter: ethiopiaParameter, type: "ethiopia" }
+    }
+     ////////////////////////////////////////////////////////
+    
+     return null
   }, [
     landLayerEnabled,
     landData,
@@ -336,6 +356,13 @@ export function EthiopiaMap({
     pestDataLayerEnabled,
     pestData,
     pestParameter,
+
+    //////////////////////step//////////////////
+     ethiopiaLayerEnabled,
+     ethiopiaData,
+     ethiopiaParameter,
+  ///////////////////////////////////////////////////
+
   ])
 
   const activeDataLayer = getActiveDataLayer()
@@ -557,6 +584,19 @@ export function EthiopiaMap({
           pest_control_cost_etb: featureData.pest_control_cost_etb,
         }
       }
+
+
+      /////////////step//////////////////
+      else if (activeLayer.type === "ethiopia") {
+      return {
+        population: featureData.population,
+        households: featureData.households,
+        area_sq_km: featureData.area_sq_km,
+        density: featureData.density,
+       }
+      }
+
+      //////////////////////////////////
       return null
     },
     [activeMapLevel],
@@ -576,6 +616,14 @@ export function EthiopiaMap({
       affected_area_ha: "Affected Area",
       crop_loss_tons: "Crop Loss",
       pest_control_cost_etb: "Pest Control Cost",
+
+      /////////////////////////step//////////////
+      population: "Population",
+      households: "Households",
+      area_sq_km: "Area (km²)",
+      density: "Density (people/km²)",
+    /////////////////////////////////////////////
+
     }
     return names[param] || param.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }, [])
@@ -626,6 +674,19 @@ export function EthiopiaMap({
         return `${numericValue.toFixed(1)}%`;
       }
       
+
+      ////////////////////////////////step///////////////////////////
+          if (param.includes("population") || param.includes("households")) {
+      return `${numericValue.toLocaleString()}`;
+    }
+    if (param.includes("area_sq_km")) {
+      return `${numericValue.toLocaleString()} km²`;
+    }
+    if (param.includes("density")) {
+      return `${numericValue.toLocaleString()} people/km²`;
+    }
+    /////////////////////////////////////////////////////////////////////
+    
       // Default for other numeric values
       return numericValue.toLocaleString();
     } catch (error) {

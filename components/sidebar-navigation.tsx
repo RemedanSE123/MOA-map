@@ -25,6 +25,7 @@ import {
   Bot,
   Radio,
   RefreshCw,
+  MapPin,
 } from "lucide-react"
 
 interface SidebarItem {
@@ -106,6 +107,8 @@ const sidebarItems: SidebarItem[] = [
     icon: Wheat,
     children: [{ id: "agriculture-controls", title: "Agriculture Controls", icon: Wheat }],
   },
+
+
   {
     id: "ai-assistant",
     title: "AI Assistant",
@@ -146,12 +149,24 @@ interface SidebarNavigationProps {
     onPestColorSchemeChange: (scheme: string) => void
     pestColorRanges: number
     onPestColorRangesChange: (ranges: number) => void
-      showWeatherData?: boolean
-  onShowWeatherDataChange?: (show: boolean) => void
-  showWeatherStations?: boolean
-  onShowWeatherStationsChange?: (show: boolean) => void
-   showAgricultureLands?: boolean // Add this
+    showWeatherData?: boolean
+    onShowWeatherDataChange?: (show: boolean) => void
+    showWeatherStations?: boolean
+    onShowWeatherStationsChange?: (show: boolean) => void
+    showAgricultureLands?: boolean // Add this
     onShowAgricultureLandsChange?: (show: boolean) => void // Add this
+
+
+    ///////////////////////////////step//////////////////////////////
+    ethiopiaLayerEnabled: boolean
+    onethiopiaLayerToggle: (enabled: boolean) => void
+    ethiopiaParameter: string
+    onethiopiaParameterChange: (parameter: string) => void
+    onethiopiaColorSchemeChange: (scheme: string) => void
+    ethiopiaLayerColorRanges: number
+    onethiopiaColorRangesChange: (ranges: number) => void
+    ethiopiaColorScheme: string
+    /////////////////////////////////////////////////////////
     onRefresh: () => void
     loading: boolean
   }
@@ -246,6 +261,10 @@ export function SidebarNavigation({
     if (layerControlsProps?.cropProductionLayerEnabled) layers.push("Crop Production")
     if (layerControlsProps?.pestDataLayerEnabled) layers.push("Pest Data")
     if (showWeatherData) layers.push("Weather Data")
+
+      //////////////////////step////////////////////////////////
+    if (layerControlsProps?.ethiopiaLayerEnabled) layers.push("Ethiopia Data")
+      /////////////////////////////////////////////////////
       
     return layers
   }
@@ -345,19 +364,10 @@ const renderWeatherControls = () => (
       {layerControlsProps?.landLayerEnabled && (
         <div className="space-y-3">
           <div>
-            <Label className="text-xs text-green-700">Year Selection</Label>
-            <Select value={layerControlsProps.selectedYear} onValueChange={layerControlsProps.onYearChange}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {["2020",   "2024"].map((year) => (
-                  <SelectItem key={year} value={year}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-xs text-green-700">Year</Label>
+            <div className="h-8 px-3 rounded-md border border-green-300 bg-green-100/70 text-xs flex items-center text-green-900 font-medium">
+              2024
+            </div>
           </div>
 
           <div>
@@ -569,6 +579,17 @@ const renderWeatherControls = () => (
     </div>
   )
 
+
+
+
+
+
+
+
+
+
+
+
 const renderAgricultureControls = () => (
   <div className="space-y-4 p-3 bg-orange-50/50 rounded-lg border border-orange-200">
     <div className="flex items-center justify-between">
@@ -586,7 +607,8 @@ return (
   <div
     className={cn(
       "flex flex-col h-full bg-sidebar border-r border-sidebar-border",
-      isCollapsed ? "w-16" : isMobile ? "w-80" : "w-96",
+      
+      isCollapsed ? "w-12" : isMobile ? "w-60" : "w-72",
       className,
     )}
   >
@@ -719,6 +741,16 @@ return (
                   {renderPestControls()}
                 </div>
               )}
+
+
+
+
+
+
+
+
+
+
 
               {/* Agriculture Lands Controls */}
               {item.id === "agriculture-lands" &&

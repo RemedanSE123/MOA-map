@@ -6,14 +6,11 @@ import { EthiopiaMap } from "@/components/ethiopia-map"
 // import { MapLevelIndicator } from "@/components/map-level-indicator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { DataCharts } from "@/components/data-charts"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2 } from "lucide-react"
 import Image from "next/image"
 import {
   Thermometer,
@@ -134,6 +131,28 @@ function MapContent({
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRegions, setSelectedRegions] = useState<string[]>([])
 
+// ⚠️ step: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+
+// Add with other state variables in MapContent component
+const [ethiopiaLayerEnabled, setEthiopiaLayerEnabled] = useState(false)
+const [ethiopiaData, setEthiopiaData] = useState<any[]>([])
+const [ethiopiaLoading, setEthiopiaLoading] = useState(false)
+const [ethiopiaParameter, setEthiopiaParameter] = useState("population")
+const [ethiopiaColorScheme, setEthiopiaColorScheme] = useState("purple")
+const [ethiopiaColorRanges, setEthiopiaColorRanges] = useState(6)
+
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   const fetchWeatherData = useCallback(
   async (year: string) => {
     if (!showWeatherData) return
@@ -176,7 +195,7 @@ function MapContent({
   [showWeatherData, activeWeatherDataSource, activeMapLevel]
 )
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const fetchStations = async () => {
     if (!showStations) {
       setStations([])
@@ -200,6 +219,12 @@ function MapContent({
       setStationsLoading(false)
     }
   }
+
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
   const fetchAgricultureLands = async () => {
     if (!showAgricultureLands) {
@@ -254,6 +279,9 @@ function MapContent({
     }
   }
 
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   const fetchCropProductionData = async (year: string) => {
     if (!cropProductionLayerEnabled) {
       setCropProductionData([])
@@ -282,6 +310,9 @@ function MapContent({
       setCropProductionLoading(false)
     }
   }
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const fetchPestData = async (year: string) => {
     if (!pestDataLayerEnabled) {
@@ -320,6 +351,50 @@ function MapContent({
     }
   }
 
+// ⚠️ step: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+
+const fetchEthiopiaData = async (year: string) => {
+  if (!ethiopiaLayerEnabled) {
+    setEthiopiaData([])
+    return
+  }
+
+  setEthiopiaLoading(true)
+  try {
+    let endpoint = "/api/ethiopia"
+    if (activeMapLevel === "zone") {
+      endpoint = "/api/z-ethiopia"
+    } else if (activeMapLevel === "woreda") {
+      endpoint = "/api/w-ethiopia"
+    }
+
+    const response = await fetch(`${endpoint}?year=${year}`)
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    const data = await response.json()
+    if (data.success) {
+      setEthiopiaData(data.data)
+      console.log(`✅ Loaded ${data.data.length} Ethiopia layer records`)
+    }
+  } catch (err) {
+    console.error("❌ Error fetching Ethiopia data:", err)
+  } finally {
+    setEthiopiaLoading(false)
+  }
+}
+
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+// ⚠️ IMPORTANT: add diffrent layers like this 
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // const getParameterTitle = () => {
   //   switch (activeWeatherDataSource) {
   //     case "r_weather_data":
@@ -497,6 +572,21 @@ function MapContent({
     fetchPestData(selectedYear)
   }, [selectedYear, pestDataLayerEnabled, activeMapLevel])
 
+
+
+  ////////////////////////////////////////////////////////////////////////////step
+
+
+useEffect(() => {
+  fetchEthiopiaData(selectedYear)
+}, [selectedYear, ethiopiaLayerEnabled, activeMapLevel])
+
+
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////
+
 // In your MapContent component in page.tsx, add these state variables:
 const [weatherColorScheme, setWeatherColorScheme] = useState("blue")
 const [weatherColorRanges, setWeatherColorRanges] = useState(6)
@@ -573,16 +663,34 @@ useEffect(() => {
       onPestColorSchemeChange: setPestColorScheme,
       pestColorRanges,
       onPestColorRangesChange: setPestColorRanges,
-      showAgricultureLands, // Add this
-    onShowAgricultureLandsChange: setShowAgricultureLands, // Add this
+      showAgricultureLands, 
+      onShowAgricultureLandsChange: setShowAgricultureLands, 
+
+      ///step
+      ethiopiaLayerEnabled,
+      onEthiopiaLayerToggle: setEthiopiaLayerEnabled,
+      ethiopiaParameter,
+      onEthiopiaParameterChange: setEthiopiaParameter,
+      ethiopiaColorScheme,
+      onEthiopiaColorSchemeChange: setEthiopiaColorScheme,
+      ethiopiaColorRanges,
+      onEthiopiaColorRangesChange: setEthiopiaColorRanges,
+    ////////////////////
+
+
+
       onRefresh: () => {
         if (landLayerEnabled) fetchLandData(selectedYear)
         if (cropProductionLayerEnabled) fetchCropProductionData(selectedYear)
         if (pestDataLayerEnabled) fetchPestData(selectedYear)
         if (showWeatherData) fetchWeatherData(selectedYear)
-           if (showAgricultureLands) fetchAgricultureLands() // Add this
+        if (showAgricultureLands) fetchAgricultureLands() 
+
+        ////////////////////////////step
+        if (ethiopiaLayerEnabled) fetchEthiopiaData(selectedYear) 
+        /////////////////////////////
       },
-      loading: landLoading || cropProductionLoading || pestLoading,
+      loading: landLoading || cropProductionLoading || pestLoading || /*step*/  ethiopiaLoading,   /*step*/    
     }
 
     if (typeof setLayerControlsProps === "function") {
@@ -605,8 +713,17 @@ useEffect(() => {
     landLoading,
     cropProductionLoading,
     pestLoading,
-     showAgricultureLands, // Add this
-  agricultureLoading, // Add this
+    showAgricultureLands, 
+    agricultureLoading, 
+
+
+    ///////////step////////////////////////////////
+    ethiopiaLayerEnabled,
+    ethiopiaParameter,
+    ethiopiaColorScheme,
+    ethiopiaColorRanges,
+    ethiopiaLoading,
+    ///////////step////////////////////////////////
   ])
 
   useEffect(() => {
@@ -618,176 +735,6 @@ useEffect(() => {
   return (
     <div className="h-full p-4 space-y-4 pr-6">
       {/* Map Level Indicator */}
-     
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center space-x-2 text-base">
-            <Layers className="h-4 w-4" />
-            <span>Map Layers</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {/* Weather Data Toggle */}
-            <div className="flex items-center justify-between p-3 border-2 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200 hover:border-blue-300 transition-all duration-200">
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-blue-100 rounded-lg">
-                  <Thermometer className="h-4 w-4 text-blue-600" />
-                </div>
-                <Label htmlFor="weather-toggle" className="font-semibold text-sm text-blue-900 cursor-pointer">
-                  Weather Data
-                </Label>
-              </div>
-              <Switch
-                id="weather-toggle"
-                checked={showWeatherData}
-                onCheckedChange={setShowWeatherData}
-                style={{
-    backgroundColor: showWeatherData ? '#2563eb' : '#374151'
-  }}
-  className="data-[state=checked]:bg-blue-600"
-              />
-            </div>
-
-            {/* Land Data Toggle */}
-            <div
-              className={`flex items-center justify-between p-3 border-2 rounded-xl transition-all duration-200 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:border-green-300`}
-            >
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-green-100 rounded-lg">
-                  <Sprout className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <Label htmlFor="land-toggle" className="font-semibold text-sm cursor-pointer text-green-900">
-                    Land Data
-                  </Label>
-                  <div className="text-xs text-green-600">Available for all levels</div>
-                </div>
-              </div>
-              <Switch
-                id="land-toggle"
-                checked={landLayerEnabled}
-                onCheckedChange={setLandLayerEnabled}
-                   style={{
-    backgroundColor: landLayerEnabled ? '#16a34a' : '#374151'
-  }}
-                className="data-[state=checked]:bg-green-600"
-              />
-            </div>
-
-            {/* Crop Production Toggle */}
-            <div
-              className={`flex items-center justify-between p-3 border-2 rounded-xl transition-all duration-200 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300`}
-            >
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-amber-100 rounded-lg">
-                  <BarChart3 className="h-4 w-4 text-amber-600" />
-                </div>
-                <div>
-                  <Label htmlFor="crop-toggle" className="font-semibold text-sm cursor-pointer text-amber-900">
-                    Crop Production
-                  </Label>
-                  <div className="text-xs text-amber-600">Available for all levels</div>
-                </div>
-              </div>
-              <Switch
-                id="crop-toggle"
-                checked={cropProductionLayerEnabled}
-                onCheckedChange={setCropProductionLayerEnabled}
-                   style={{
-    backgroundColor: cropProductionLayerEnabled ? '#d97706' : '#374151'
-  }}
-                className="data-[state=checked]:bg-amber-600"
-              />
-            </div>
-
-            {/* Pest Data Toggle */}
-            <div
-              className={`flex items-center justify-between p-3 border-2 rounded-xl transition-all duration-200 bg-gradient-to-r from-red-50 to-pink-50 border-red-200 hover:border-red-300`}
-            >
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-red-100 rounded-lg">
-                  <Bug className="h-4 w-4 text-red-600" />
-                </div>
-                <div>
-                  <Label htmlFor="pest-toggle" className="font-semibold text-sm cursor-pointer text-red-900">
-                    Pest Data
-                  </Label>
-                  <div className="text-xs text-red-600">Available for all levels</div>
-                </div>
-              </div>
-              <Switch
-                id="pest-toggle"
-                checked={pestDataLayerEnabled}
-                onCheckedChange={setPestDataLayerEnabled}
-                   style={{
-    backgroundColor: pestDataLayerEnabled ? '#dc2626' : '#374151'
-  }}
-                className="data-[state=checked]:bg-red-600"
-              />
-            </div>
-
-            {/* Stations Toggle */}
-            <div className="flex items-center justify-between p-3 border-2 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200 hover:border-teal-300 transition-all duration-200">
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-teal-100 rounded-lg">
-                  <Radio className="h-4 w-4 text-teal-600" />
-                </div>
-                <Label htmlFor="stations-toggle" className="font-semibold text-sm text-teal-900 cursor-pointer">
-                  Weather Stations
-                </Label>
-              </div>
-              <Switch
-                id="stations-toggle"
-                checked={showStations}
-                onCheckedChange={setShowStations}
-                   style={{
-    backgroundColor: showStations ? '#2563eb' : '#374151'
-  }}
-                className="data-[state=checked]:bg-teal-600"
-              />
-            </div>
-
-            {/* Agriculture Lands Toggle */}
-            <div className="flex items-center justify-between p-3 border-2 rounded-xl bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200 hover:border-orange-300 transition-all duration-200">
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-orange-100 rounded-lg">
-                  <Wheat className="h-4 w-4 text-orange-600" />
-                </div>
-                <Label htmlFor="agriculture-toggle" className="font-semibold text-sm text-orange-900 cursor-pointer">
-                  Agriculture Lands
-                </Label>
-              </div>
-              <Switch
-                id="agriculture-toggle"
-                checked={showAgricultureLands}
-                onCheckedChange={setShowAgricultureLands}
-                   style={{
-    backgroundColor: showAgricultureLands ? '#ea580c' : '#374151'
-  }}
-                className="data-[state=checked]:bg-orange-600"
-              />
-            </div>
-          </div>
-
-          {showWeatherData && weatherLoading && (
-            <Alert>
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <AlertDescription className="text-xs">
-                Loading weather data for {activeMapLevel} level...
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {showWeatherData && weatherError && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-3 w-3" />
-              <AlertDescription className="text-xs">{weatherError}</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
 
       <Tabs defaultValue="map" className="space-y-3">
         <TabsList className="grid w-full grid-cols-3">
@@ -822,6 +769,14 @@ useEffect(() => {
                       ? `Crop Production - ${cropParameter.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())} - ${selectedYear}`
                       : landLayerEnabled && landData.length > 0
                         ? `Land Data - ${landParameter.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())} - ${selectedYear}`
+                        
+                        //////////////////////////////step///////////////////////////////
+                        :ethiopiaLayerEnabled && ethiopiaData.length > 0
+                          ? `Ethiopia Data - ${ethiopiaParameter.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())} - ${selectedYear}`
+
+                        ////////////////////////////////////////////////
+
+
                         : showWeatherData && activeWeatherDataSource
                            ? `Weather Data - ${weatherParameter.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())} - ${selectedYear}`
                           : `${activeMapLevel.charAt(0).toUpperCase() + activeMapLevel.slice(1)} Administrative Boundaries`}
@@ -838,9 +793,6 @@ useEffect(() => {
                 </div>
               ) : (
 
-
-
-
                <EthiopiaMap
   activeLayer={
     pestDataLayerEnabled && pestData.length > 0
@@ -849,6 +801,12 @@ useEffect(() => {
         ? "crop"
         : landLayerEnabled && landData.length > 0
           ? "land"
+
+          
+        /////step
+             :ethiopiaLayerEnabled && ethiopiaData.length > 0
+              ? "ethiopia"
+        ////
           : showWeatherData && activeWeatherDataSource
             ? "weather"
             : "boundaries"
@@ -871,6 +829,10 @@ useEffect(() => {
         ? colorSchemes[cropColorScheme as keyof typeof colorSchemes]
         : landLayerEnabled && landData.length > 0
           ? colorSchemes[landColorScheme as keyof typeof colorSchemes]
+          /////////////////step/////////////
+          :ethiopiaLayerEnabled && ethiopiaData.length > 0
+            ? colorSchemes[ethiopiaColorScheme as keyof typeof colorSchemes]
+          //////////////////////////////////
           : showWeatherData // Add this condition for weather
           ? colorSchemes[weatherColorScheme as keyof typeof colorSchemes]
           : colorSchemes.blue
@@ -882,6 +844,10 @@ useEffect(() => {
         ? cropColorRanges
         : landLayerEnabled && landData.length > 0
           ? landColorRanges
+          ///////////////////////////step////////////////
+            :ethiopiaLayerEnabled && ethiopiaData.length > 0
+            ? ethiopiaColorRanges
+          /////////////////////////////////////////
           : showWeatherData // Add this condition for weather
           ? weatherColorRanges
           : 6
@@ -904,6 +870,12 @@ useEffect(() => {
                   landParameter={landParameter}
                   cropParameter={cropParameter}
                   pestParameter={pestParameter}
+
+                  //////////////step///////////////////
+                   ethiopiaData={ethiopiaData}
+                   ethiopiaLayerEnabled={ethiopiaLayerEnabled}
+                   ethiopiaParameter={ethiopiaParameter}
+                   //////////////////
                   key={`${activeMapLevel}-${selectedYear}-${landLayerEnabled}-${cropProductionLayerEnabled}-${pestDataLayerEnabled}-${showWeatherData}`}
                 />
               )}
@@ -982,6 +954,11 @@ useEffect(() => {
               ...(cropProductionLayerEnabled ? ["Crop Production"] : []),
               ...(pestDataLayerEnabled ? ["Pest Data"] : []),
               ...(showWeatherData ? ["Weather Data"] : []),
+
+
+              ////////////////////step///////////////////////
+              ...(ethiopiaLayerEnabled ? ["Ethiopia Data"] : []), // Add this
+              /////////////////////////////////////////////
             ]}
             selectedYear={selectedYear}
           />
@@ -1176,7 +1153,7 @@ export default function EthiopiaTemperatureMap() {
     // Hide the intro animation after 5 seconds
     const timer = setTimeout(() => {
       setShowIntro(false)
-    }, 10000) // Changed from 10000 to 5000 for 5 seconds
+    }, 5000) // Changed from 10000 to 5000 for 5 seconds
 
     return () => clearTimeout(timer)
   }, [])
@@ -1189,7 +1166,7 @@ export default function EthiopiaTemperatureMap() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.8 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-white"
           >
             <div className="text-center">
@@ -1197,7 +1174,7 @@ export default function EthiopiaTemperatureMap() {
                   <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
                     className="mb-8 flex items-center justify-center"
                   >
                     <Image
@@ -1214,7 +1191,7 @@ export default function EthiopiaTemperatureMap() {
                       <motion.h1
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 1, duration: 1 }}
+                        transition={{ delay: 0.6, duration: 0.8 }}
                         className="text-3xl font-bold text-green-800 mb-2 text-center"
                       >
                         Ministry of Agriculture – Ethiopia
@@ -1223,7 +1200,7 @@ export default function EthiopiaTemperatureMap() {
                       <motion.h2
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 1.2, duration: 1 }}
+                        transition={{ delay: 0.8, duration: 0.8 }}
                         className="text-xl text-green-700 mb-8 text-center"
                       >
                         ግብርና ሚኒስቴር – ኢትዮጵያ
@@ -1233,11 +1210,11 @@ export default function EthiopiaTemperatureMap() {
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 2, duration: 1.5 }}
+                        transition={{ delay: 1.2, duration: 1 }}
                         className="space-y-6 text-center"
                       >
                       <p className="text-lg text-gray-700 font-medium">
-  Visualizing Ethiopia’s <span className="text-green-700 font-semibold"> Agricultural  land</span>, 
+  Visualizing Ethiopia&apos;s <span className="text-green-700 font-semibold"> Agricultural  land</span>, 
   <span className="text-green-700 font-semibold"> Crop data</span>, and 
   <span className="text-green-700 font-semibold"> Pest trends</span> on an interactive map
 </p>
@@ -1253,7 +1230,7 @@ export default function EthiopiaTemperatureMap() {
                               key={word}
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 2.5 + index * 0.2, duration: 0.5 }}
+                              transition={{ delay: 1.5 + index * 0.15, duration: 0.5 }}
                               className="inline-block px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm shadow-sm hover:bg-green-200 transition"
                             >
                               {word}
@@ -1267,7 +1244,7 @@ export default function EthiopiaTemperatureMap() {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
-                transition={{ delay: 1.5, duration: 3.5 }}
+                transition={{ delay: 1, duration: 3.5 }}
                 className="h-1 bg-green-300 mt-8 rounded-full"
               />
             </div>
